@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Community Events Calendar</title>
+  <style>
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      color: #003366;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      font-weight: 600;
+    }
+    #calendar-nav {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #calendar-nav button {
+      background: #003366;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #monthLabel {
+      margin: 0 10px;
+      font-weight: 600;
+    }
+    #calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 10px;
+    }
+    .day {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      min-height: 80px;
+      position: relative;
+      text-align: right;
+      padding: 5px;
+      background-color: #fff;
+      transition: all 0.2s ease;
+    }
+    .day:hover {
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+    .day.has-event {
+      background-color: #e8f0ff;
+      border-color: #0055a5;
+      font-weight: 600;
+    }
+    .day-number {
+      font-size: 14px;
+    }
+    .tooltip {
+      display: none;
+      position: absolute;
+      z-index: 10;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      background-color: white;
+      color: #003366;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: left;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .day:hover .tooltip {
+      display: block;
+    }
+    .calendar-day-label {
+      text-align: center;
+      font-weight: 500;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+<div id="calendar-container">
+  <h2>Community Events Calendar</h2>
+  <div id="calendar-nav">
+    <button id="prevMonth">&#8592; Prev</button>
+    <span id="monthLabel"></span>
+    <button id="nextMonth">Next &#8594;</button>
+  </div>
+  <div id="calendar"></div>
+</div>
+
+<script>
+  // ===========================
+  // 🗓️ UPDATE EVENTS HERE
+  // ===========================
+  const events = [
+    {
+      date: '2025-11-02',
+      title: 'Community Open House',
+      time: '10:00 AM – 1:00 PM',
+      loc: 'Groton Senior Center',
+      desc: 'Learn about Missing Middle Housing and share feedback.'
+    },
+    {
+      date: '2025-11-15',
+      title: 'Focus Group: Developers & Lenders',
+      time: '2:00 PM – 4:00 PM',
+      loc: 'Town Hall Annex, Room 201',
+      desc: 'Small-group discussion about housing feasibility and financing.'
+    },
+    {
+      date: '2025-12-03',
+      title: 'Planning Commission Briefing',
+      time: '6:30 PM',
+      loc: 'Town Hall Chambers',
+      desc: 'Staff presentation and discussion on housing study findings.'
+    }
+  ];
+
+  // ===========================
+  // ⚙️ CALENDAR LOGIC
+  // ===========================
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
+
+  const calendar = document.getElementById('calendar');
+  const monthLabel = document.getElementById('monthLabel');
+  const prevBtn = document.getElementById('prevMonth');
+  const nextBtn = document.getElementById('nextMonth');
+  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  function renderCalendar(month, year) {
+    calendar.innerHTML = '';
+    dayLabels.forEach(label => {
+      const dayLabel = document.createElement('div');
+      dayLabel.className = 'calendar-day-label';
+      dayLabel.textContent = label;
+      calendar.appendChild(dayLabel);
+    });
+
+    const firstDay = new Date(year, month, 1);
+    const startDay = firstDay.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    monthLabel.textContent = `${firstDay.toLocaleString('default', { month: 'long' })} ${year}`;
+
+    for (let i = 0; i < startDay; i++) calendar.appendChild(document.createElement('div'));
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const cell = document.createElement('div');
+      cell.className = 'day';
+
+      const dayNumber = document.createElement('div');
+      dayNumber.className = 'day-number';
+      dayNumber.textContent = day;
+      cell.appendChild(dayNumber);
+
+      const dateString = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const event = events.find(e => e.date === dateString);
+
+      if (event) {
+        cell.classList.add('has-event');
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.innerHTML = `<strong>${event.title}</strong><br>${event.time}<br>${event.loc}<br><br><small>${event.desc}</small>`;
+        cell.appendChild(tooltip);
+      }
+      calendar.appendChild(cell);
+    }
+  }
+
+  prevBtn.addEventListener('click', () => {
+    currentMonth--;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    renderCalendar(currentMonth, currentYear);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    currentMonth++;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    renderCalendar(currentMonth, currentYear);
+  });
+
+  renderCalendar(currentMonth, currentYear);
+</script>
+
+</body>
+</html>
