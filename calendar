@@ -61,29 +61,40 @@
     .day-number {
       font-size: 14px;
     }
+    .calendar-day-label {
+      text-align: center;
+      font-weight: 500;
+      color: #666;
+    }
+
+    /* Tooltip styling */
     .tooltip {
       display: none;
       position: absolute;
-      z-index: 10;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
+      z-index: 9999;
       width: 220px;
-      background-color: white;
+      background-color: #fff;
       color: #003366;
       border: 1px solid #ccc;
       border-radius: 8px;
       padding: 10px;
       text-align: left;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      font-size: 13px;
+      line-height: 1.4;
     }
-    .day:hover .tooltip {
-      display: block;
+    .tooltip a.button {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 4px 8px;
+      background-color: #003366;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 13px;
     }
-    .calendar-day-label {
-      text-align: center;
-      font-weight: 500;
-      color: #666;
+    .tooltip a.button:hover {
+      background-color: #0055a5;
     }
   </style>
 </head>
@@ -105,26 +116,21 @@
   // ===========================
   const events = [
     {
-      date: '2025-11-02',
-      title: 'Community Open House',
-      time: '10:00 AM – 1:00 PM',
-      loc: 'Groton Senior Center',
-      desc: 'Learn about Missing Middle Housing and share feedback.'
+      date: '2025-11-14',
+      title: 'Town of Groton Missing Middle Housing Inventory',
+      time: '12:00 PM',
+      loc: 'Online Virtual Release',
+      desc: 'Check page for a dedicated project page on Missing Middle Housing types in Groton',
+      
     },
     {
-      date: '2025-11-15',
-      title: 'Focus Group: Developers & Lenders',
-      time: '2:00 PM – 4:00 PM',
-      loc: 'Town Hall Annex, Room 201',
-      desc: 'Small-group discussion about housing feasibility and financing.'
+      date: '2025-11-21',
+      title: 'Poquonnock Bridge Missing Middle Housing Walking Tour',
+      time: '3:30 PM – 4:30 PM',
+      loc: 'Community Center parking lot at 45 Fort Hill Rd.',
+      desc: 'RSVP for our upcoming walking tour using the link below.',
+      link: 'https://arcg.is/0yyqCT'
     },
-    {
-      date: '2025-12-03',
-      title: 'Planning Commission Briefing',
-      time: '6:30 PM',
-      loc: 'Town Hall Chambers',
-      desc: 'Staff presentation and discussion on housing study findings.'
-    }
   ];
 
   // ===========================
@@ -139,8 +145,29 @@
   const nextBtn = document.getElementById('nextMonth');
   const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+  function createTooltip(event, eventData) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.innerHTML = `
+      <strong>${eventData.title}</strong><br>
+      ${eventData.time}<br>
+      ${eventData.loc}<br><br>
+      <small>${eventData.desc}</small>
+      ${eventData.link ? `<br><a href="${eventData.link}" class="button" target="_blank">More Info</a>` : ''}
+    `;
+    document.body.appendChild(tooltip);
+
+    const rect = event.target.getBoundingClientRect();
+    tooltip.style.top = rect.bottom + window.scrollY + 6 + 'px';
+    tooltip.style.left = rect.left + window.scrollX + rect.width/2 - tooltip.offsetWidth/2 + 'px';
+    tooltip.style.display = 'block';
+
+    return tooltip;
+  }
+
   function renderCalendar(month, year) {
     calendar.innerHTML = '';
+
     dayLabels.forEach(label => {
       const dayLabel = document.createElement('div');
       dayLabel.className = 'calendar-day-label';
@@ -151,12 +178,11 @@
     const firstDay = new Date(year, month, 1);
     const startDay = firstDay.getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-
     monthLabel.textContent = `${firstDay.toLocaleString('default', { month: 'long' })} ${year}`;
 
-    for (let i = 0; i < startDay; i++) calendar.appendChild(document.createElement('div'));
+    for(let i = 0; i < startDay; i++) calendar.appendChild(document.createElement('div'));
 
-    for (let day = 1; day <= daysInMonth; day++) {
+    for(let day = 1; day <= daysInMonth; day++) {
       const cell = document.createElement('div');
       cell.className = 'day';
 
@@ -165,29 +191,33 @@
       dayNumber.textContent = day;
       cell.appendChild(dayNumber);
 
-      const dateString = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-      const event = events.find(e => e.date === dateString);
+      const dateString = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const eventData = events.find(e => e.date === dateString);
 
-      if (event) {
+      if(eventData) {
         cell.classList.add('has-event');
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip';
-        tooltip.innerHTML = `<strong>${event.title}</strong><br>${event.time}<br>${event.loc}<br><br><small>${event.desc}</small>`;
-        cell.appendChild(tooltip);
+        let tooltip;
+        cell.addEventListener('mouseenter', e => {
+          tooltip = createTooltip(e, eventData);
+        });
+        cell.addEventListener('mouseleave', () => {
+          if(tooltip) tooltip.remove();
+        });
       }
+
       calendar.appendChild(cell);
     }
   }
 
   prevBtn.addEventListener('click', () => {
     currentMonth--;
-    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    if(currentMonth < 0) { currentMonth = 11; currentYear--; }
     renderCalendar(currentMonth, currentYear);
   });
 
   nextBtn.addEventListener('click', () => {
     currentMonth++;
-    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    if(currentMonth > 11) { currentMonth = 0; currentYear++; }
     renderCalendar(currentMonth, currentYear);
   });
 
