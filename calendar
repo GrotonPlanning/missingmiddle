@@ -131,6 +131,27 @@
       desc: 'RSVP for our upcoming walking tour using the link below.',
       link: 'https://arcg.is/0yyqCT'
     },
+     {
+      date: '2026-02-26',
+      title: 'Community Conversations: An Introduction to Missing Middle Housing',
+      time: '5:30 PM – 7:30 PM',
+      loc: 'Groton Middle School',
+      desc: 'Join us to learn about Missing Middle Housing and the Meeting in the Middle project.',
+    },
+          {
+      date: '2026-03-05',
+      title: 'Missing Middle Housing Walking Tour',
+      time: '4:00 PM – 5:00 PM',
+      loc: 'Meet at Factory Square courtyard, 12 Water Street.',
+      desc: 'Come explore Missing Middle Housing in Mystic during our third walking tour.',
+    },
+            {
+      date: '2026-03-26',
+      title: 'Meeting in the Middle Public Meeting',
+      time: '5:30 PM – 7:30 PM',
+      loc: 'Thrive 55+, 52 Newtown Road.',
+      desc: 'The project consultants will present a series of "Opportunity Sites" to illustrate how Missing Middle Housing may fit into Groton.',
+    },
   ];
 
   // ===========================
